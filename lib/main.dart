@@ -46,6 +46,25 @@ class _HomeState extends State<Home> {
     });
   }
 
+  /* Função para ordenar a listados concluidos e nao concluidos */
+  Future<Null> _refreshOrdenacao() async { // é utilizado o async para que não ocorra instantaneamente, se tivesse chamada com o servidor não é necessario utilizar o async no caso desta função
+    await Future.delayed(Duration(seconds: 1));
+
+    setState(() {
+      _criaLista.sort((a, b){
+        if(a["ok"] && !b["ok"])
+          return 1;
+        else if(!a["ok"] && b["ok"])
+          return -1;
+        else
+          return 0;
+      });
+
+      _saveData();
+    });
+
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +99,8 @@ class _HomeState extends State<Home> {
             ), // Row
           ), // Container
           Expanded(
+            child: RefreshIndicator(  /* ação de arrastar a tela para baixo */
+              onRefresh: _refreshOrdenacao,  // indica ação de atualizar a ordenação da lista
               child: ListView.builder(
                   padding: EdgeInsets.only(top: 10.0,),
                   itemCount: _criaLista.length,
@@ -100,7 +121,9 @@ class _HomeState extends State<Home> {
                      ); // CheckboxListTile
                   }, // itemBuilder */
               ), // ListView.builder
+            ), // RefreshIndicator
           ), // Expended
+
         ], // <Widget>[]
       ), // Column
     ); // Scaffold
